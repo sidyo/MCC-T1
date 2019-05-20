@@ -71,6 +71,7 @@ func main() {
 	input := make(chan rune, 1)
    	fmt.Println("Checking keyboard input...")
     	go readKey(input)
+
     	select {
         	case i := <-input:
            		fmt.Printf("Input : %v\n", i)
