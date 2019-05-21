@@ -7,7 +7,8 @@ import (
 	"bufio"
     	"os"
     	"log"
-    	"time"
+		
+        term "github.com/nsf/termbox-go"
 )
 
 var reader = bufio.NewReader(os.Stdin)
@@ -20,14 +21,6 @@ type celula struct {
 
 type tabuleiro struct {
 	tab [tabTamanho][tabTamanho]celula
-}
-
-func readKey(input chan rune) {
-    char, _, err := reader.ReadRune()
-    if err != nil {
-        log.Fatal(err)
-    }
-    input <- char
 }
 
 func montarTabuleiro() tabuleiro {
@@ -59,6 +52,53 @@ func montarTabuleiro() tabuleiro {
 	return tab
 }
 
+func reset() {
+        term.Sync() // cosmestic purpose
+}
+func keyListener(){
+	err := term.Init()
+	if err != nil {
+		 panic(err)
+	}
+
+	defer term.Close()
+
+	fmt.Println("Enter any key to see their ASCII code or press ESC button to quit")
+
+	keyPressListenerLoop:
+		for {
+			switch ev := term.PollEvent(); ev.Type {
+			case term.EventKey:
+				switch ev.Key {
+					case term.KeyEsc:
+							break keyPressListenerLoop
+					case term.KeyArrowUp:
+							reset()
+							fmt.Println("Arrow Up pressed")
+					case term.KeyArrowDown:
+							reset()
+							fmt.Println("Arrow Down pressed")
+					case term.KeyArrowLeft:
+							reset()
+							fmt.Println("Arrow Left pressed")
+					case term.KeyArrowRight:
+							reset()
+							fmt.Println("Arrow Right pressed")
+					case term.KeySpace:
+							reset()
+							fmt.Println("Space pressed")
+					default:
+							// we only want to read a single character or one key pressed event
+							reset()
+							fmt.Println("ASCII : ", ev.Ch)
+				}
+			case term.EventError:
+				 panic(ev.Err)
+			}
+		}
+}
+
+
 func main() {
 	test := montarTabuleiro()
 
@@ -68,17 +108,7 @@ func main() {
 		}
 	}
 
-	input := make(chan rune, 1)
-   	fmt.Println("Checking keyboard input...")
-    	go readKey(input)
-
-    	select {
-        	case i := <-input:
-           		fmt.Printf("Input : %v\n", i)
-        	case <-time.After(500000 * time.Millisecond):
-            		fmt.Println("Time out!")
-    	}
+	keyListener()
 
 
 }
-
