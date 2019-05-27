@@ -5,21 +5,16 @@ import (
 	//"sync"
 	"time"
 	"bufio"
-    	"os"
-		
-        term "github.com/nsf/termbox-go"
+    "os"	
 )
 
 var reader = bufio.NewReader(os.Stdin)
-
-var servidor = false
-
 
 const maxPlayers = 3
 const tabTamanho = 5
 
 var tab = montarTabuleiro()
-var pl = playerInit()
+var pl []player = playerInit()
 
 type player struct {
 	x, y int
@@ -33,10 +28,15 @@ type tabuleiro struct {
 	tab [tabTamanho][tabTamanho]celula
 }
 
-func playerInit() player {
-	p := player{}
-	p.x = 0
-	p.y = 0
+func playerInit() []player {
+	p := [player{}, player{}]
+	
+	p[0].x = 0
+	p[0].y = 0
+	
+	p[1].x = tabTamanho - 1
+	p[1].y = tabTamanho - 1
+	
 	return p
 }
 
@@ -69,69 +69,16 @@ func montarTabuleiro() tabuleiro {
 	return tab
 }
 
-func reset() {
-        //term.Sync() // cosmestic purpose
-        printGame()
-}
 
-func keyListener(){
-	err := term.Init()
-	if err != nil {
-		 panic(err)
-	}
-
-	defer term.Close()
-
-	fmt.Println("Enter any key to see their ASCII code or press ESC button to quit")
-
-	keyPressListenerLoop:
-		for {
-			switch ev := term.PollEvent(); ev.Type {
-			case term.EventKey:
-				switch ev.Key {
-					case term.KeyEsc:
-						break keyPressListenerLoop
-					case term.KeyArrowUp:
-						move(2)
-						reset()
-						fmt.Println("Arrow Up pressed")
-					case term.KeyArrowDown:
-						move(4)
-						reset()
-						fmt.Println("Arrow Down pressed")
-							
-					case term.KeyArrowLeft:
-						move(3)
-						reset()
-						fmt.Println("Arrow Left pressed")
-							
-					case term.KeyArrowRight:
-						move(1)
-						reset()
-						fmt.Println("Arrow Right pressed")
-							
-					case term.KeySpace:
-						bomb()
-						reset()
-						fmt.Println("Space pressed")
-					default:
-						// we only want to read a single character or one key pressed event
-						reset()
-						fmt.Println("ASCII : ", ev.Ch)
-				}
-			case term.EventError:
-				 panic(ev.Err)
-			}
-		}
-}
 
 func bomb() {
-	fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
+	//fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
 	time.Sleep(2000000000)
 	fmt.Print("Booom!\n")
 }
 
-func move(action int) {
+/*
+func move(player int, action int) {
 	switch action {
 		case 1:
 			if(pl.x < tabTamanho - 1) {
@@ -152,10 +99,10 @@ func move(action int) {
 		default:
 			fmt.Print("move default\n")
 	}
-}
+}*/
 
 func printGame () {
-	fmt.Printf("Player position: %d, %d\n", pl.x, pl.y)
+	//fmt.Printf("Player position: %d, %d\n", pl.x, pl.y)
 }
 
 func networkinit() {

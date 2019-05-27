@@ -12,9 +12,6 @@ import (
 
 var reader = bufio.NewReader(os.Stdin)
 
-var servidor = false
-
-
 const maxPlayers = 3
 const tabTamanho = 5
 
