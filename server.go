@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
-	//"sync"
-	"time"
-	"bufio"
-    "os"	
+    "fmt"
+    //"sync"
+    "time"
+    "bufio"
+    "os"
 )
+
+import BEB "/Users/raulrodrigues/Documents/Personal\ projects/MCC-T1/BestEffortBroadcast"
 
 var reader = bufio.NewReader(os.Stdin)
 
@@ -14,67 +16,67 @@ const maxPlayers = 3
 const tabTamanho = 5
 
 var tab = montarTabuleiro()
-var pl []player = playerInit()
+var pl [2]player = playerInit()
 
 type player struct {
-	x, y int
+    x, y int
 }
 
 type celula struct {
-	top, bottom, left, right bool
+    top, bottom, left, right bool
 }
 
 type tabuleiro struct {
-	tab [tabTamanho][tabTamanho]celula
+    tab [tabTamanho][tabTamanho]celula
 }
 
-func playerInit() []player {
-	p := [player{}, player{}]
-	
-	p[0].x = 0
-	p[0].y = 0
-	
-	p[1].x = tabTamanho - 1
-	p[1].y = tabTamanho - 1
-	
-	return p
+func playerInit() [2]player {
+    p := [2]player{player{}, player{}}
+
+    p[0].x = 0
+    p[0].y = 0
+
+    p[1].x = tabTamanho - 1
+    p[1].y = tabTamanho - 1
+
+    return p
 }
 
 func montarTabuleiro() tabuleiro {
-	tab := tabuleiro{}
-	for i := 0; i < tabTamanho; i++ {
-		for j := 0; j < tabTamanho; j++ {
-			cel := celula{}
+    tab := tabuleiro{}
+    for i := 0; i < tabTamanho; i++ {
+        for j := 0; j < tabTamanho; j++ {
+        cel := celula{}
 
-			cel.top = true
-			cel.bottom = true
-			cel.left = true
-			cel.right = true
-			
-			if j == 0 {
-				cel.top = false	
-			} else if j == tabTamanho - 1 {
-				cel.bottom = false
-			}
+        cel.top = true
+        cel.bottom = true
+        cel.left = true
+        cel.right = true
 
-			if i == 0 {
-				cel.left = false	
-			} else if i == tabTamanho - 1 {
-				cel.right = false
-			}
-			
-			tab.tab[i][j] = cel
-		}	
-	}
-	return tab
+        if j == 0 {
+            cel.top = false
+        } else if j == tabTamanho - 1 {
+            cel.bottom = false
+        }
+
+        if i == 0 {
+            cel.left = false
+        } else if i == tabTamanho - 1 {
+            cel.right = false
+        }
+
+        tab.tab[i][j] = cel
+        }
+    }
+    return tab
 }
 
 
 
 func bomb() {
-	//fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
-	time.Sleep(2000000000)
-	fmt.Print("Booom!\n")
+    //fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
+    time.Sleep(2000000000)
+    fmt.Print("Booom!\n")
 }
 
 /*
@@ -95,7 +97,7 @@ func move(player int, action int) {
 		case 4:
 			if(pl.y < tabTamanho - 1) {
 				pl.y = pl.y + 1
-			} 
+			}
 		default:
 			fmt.Print("move default\n")
 	}
@@ -153,9 +155,9 @@ func networkinit() {
 }
 
 func main() {
-	printGame()
-	go keyListener()
-	
-	var block chan int = make(chan int)
-	<-block
+    printGame()
+    go keyListener()
+
+    var block chan int = make(chan int)
+    <-block
 }

@@ -5,9 +5,8 @@ import (
 	//"sync"
 	"time"
 	"bufio"
-    	"os"
-		
-        term "github.com/nsf/termbox-go"
+    "os"
+	term "github.com/nsf/termbox-go"
 )
 
 var reader = bufio.NewReader(os.Stdin)
@@ -47,21 +46,21 @@ func montarTabuleiro() tabuleiro {
 			cel.bottom = true
 			cel.left = true
 			cel.right = true
-			
+
 			if j == 0 {
-				cel.top = false	
+				cel.top = false
 			} else if j == tabTamanho - 1 {
 				cel.bottom = false
 			}
 
 			if i == 0 {
-				cel.left = false	
+				cel.left = false
 			} else if i == tabTamanho - 1 {
 				cel.right = false
 			}
-			
+
 			tab.tab[i][j] = cel
-		}	
+		}
 	}
 	return tab
 }
@@ -96,17 +95,17 @@ func keyListener(){
 						move(4)
 						reset()
 						fmt.Println("Arrow Down pressed")
-							
+
 					case term.KeyArrowLeft:
 						move(3)
 						reset()
 						fmt.Println("Arrow Left pressed")
-							
+
 					case term.KeyArrowRight:
 						move(1)
 						reset()
 						fmt.Println("Arrow Right pressed")
-							
+
 					case term.KeySpace:
 						bomb()
 						reset()
@@ -145,7 +144,7 @@ func move(action int) {
 		case 4:
 			if(pl.y < tabTamanho - 1) {
 				pl.y = pl.y + 1
-			} 
+			}
 		default:
 			fmt.Print("move default\n")
 	}
@@ -205,7 +204,7 @@ func networkinit() {
 func main() {
 	printGame()
 	go keyListener()
-	
+
 	var block chan int = make(chan int)
 	<-block
 }
