@@ -12,7 +12,7 @@ import (
 var reader = bufio.NewReader(os.Stdin)
 
 const maxPlayers = 3
-const tabTamanho = 5
+const tabTamanho = 
 
 var tab = montarTabuleiro()
 var pl = playerInit()

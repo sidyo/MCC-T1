@@ -8,70 +8,41 @@ import (
     "os"
 )
 
-import BEB "/Users/raulrodrigues/Documents/Personal\ projects/MCC-T1/BestEffortBroadcast"
-
 var reader = bufio.NewReader(os.Stdin)
 
 const maxPlayers = 3
-const tabTamanho = 5
+const boardSize = 10
 
-var tab = montarTabuleiro()
+var board [boardSize][boardSize]bool
 var pl [2]player = playerInit()
 
 type player struct {
     x, y int
 }
 
-type celula struct {
-    top, bottom, left, right bool
-}
-
-type tabuleiro struct {
-    tab [tabTamanho][tabTamanho]celula
+func buildBoard() {
+    for j := 0; j < boardSize; j++ {
+        for i := 0; i < boardSize; i++ {
+            if j == 0 || j == boardSize - 1 || i == 0 || i == boardSize - 1 {
+                board[j][i] = true
+            } else {
+                board[j][i] = false
+            }
+        }
+    }
 }
 
 func playerInit() [2]player {
     p := [2]player{player{}, player{}}
 
-    p[0].x = 0
-    p[0].y = 0
+    p[0].x = 1
+    p[0].y = 1
 
-    p[1].x = tabTamanho - 1
-    p[1].y = tabTamanho - 1
+    p[1].x = boardSize - 2
+    p[1].y = boardSize - 2
 
     return p
 }
-
-func montarTabuleiro() tabuleiro {
-    tab := tabuleiro{}
-    for i := 0; i < tabTamanho; i++ {
-        for j := 0; j < tabTamanho; j++ {
-        cel := celula{}
-
-        cel.top = true
-        cel.bottom = true
-        cel.left = true
-        cel.right = true
-
-        if j == 0 {
-            cel.top = false
-        } else if j == tabTamanho - 1 {
-            cel.bottom = false
-        }
-
-        if i == 0 {
-            cel.left = false
-        } else if i == tabTamanho - 1 {
-            cel.right = false
-        }
-
-        tab.tab[i][j] = cel
-        }
-    }
-    return tab
-}
-
-
 
 func bomb() {
     //fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
@@ -83,7 +54,7 @@ func bomb() {
 func move(player int, action int) {
 	switch action {
 		case 1:
-			if(pl.x < tabTamanho - 1) {
+			if(pl.x < boardSize - 1) {
 				pl.x = pl.x + 1
 			}
 		case 2:
@@ -95,7 +66,7 @@ func move(player int, action int) {
 				pl.x = pl.x - 1
 			}
 		case 4:
-			if(pl.y < tabTamanho - 1) {
+			if(pl.y < boardSize - 1) {
 				pl.y = pl.y + 1
 			}
 		default:
@@ -104,9 +75,23 @@ func move(player int, action int) {
 }*/
 
 func printGame () {
-	//fmt.Printf("Player position: %d, %d\n", pl.x, pl.y)
+    for j := 0; j < boardSize; j++ {
+        for i := 0; i < boardSize; i++ {
+            if board[j][i] {
+                fmt.Printf("# ")
+            } else if pl[0].x == i && pl[0].y == j {
+                fmt.Printf("1 ")
+            } else if pl[1].x == i && pl[1].y == j {
+                fmt.Printf("2 ")
+            } else {
+                fmt.Printf("  ")
+            }
+        }
+        fmt.Printf("\n")
+    }
 }
 
+/*
 func networkinit() {
 
 	if len(os.Args) < 2 {
@@ -153,11 +138,12 @@ func networkinit() {
 	blq := make(chan int)
 	<-blq
 }
+*/
 
 func main() {
+    //go keyListener()
+    buildBoard()
     printGame()
-    go keyListener()
-
-    var block chan int = make(chan int)
-    <-block
+    //var block chan int = make(chan int)
+    //<-block
 }
