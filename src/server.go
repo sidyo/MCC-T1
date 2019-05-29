@@ -11,7 +11,6 @@ import (
     "strconv"
 )
 
-
 // -----------------------------------------
 //
 // -----------------------------------------
@@ -83,8 +82,6 @@ func (m *Monitor) monitorExit() {
 	}
 }
 
-//  ------------------------------------------------------
-//  ------------------------------------------------------
 //  estruturas genericas de  variaveis condicao
 
 type Condition struct {
@@ -123,12 +120,9 @@ func (c *Condition) condSignal() {
 	}
 }
 
-
 // -----------------------------------------
 //
 // -----------------------------------------
-
-
 
 func buildBoard() {
     for j := 0; j < boardSize; j++ {
@@ -154,30 +148,29 @@ func playerInit() [2]player {
     return p
 }
 
-/*
 func move(player int, action int) {
 	switch action {
 		case 1:
-			if(pl.x < boardSize - 1) {
-				pl.x = pl.x + 1
+			if(pl[player].x < boardSize - 2) {
+				pl[player].x = pl[player].x + 1
 			}
 		case 2:
-			if(pl.y > 0) {
-				pl.y = pl.y - 1
+			if(pl[player].y > 1) {
+				pl[player].y = pl[player].y - 1
 			}
 		case 3:
-			if(pl.x > 0) {
-				pl.x = pl.x - 1
+			if(pl[player].x > 1) {
+				pl[player].x = pl[player].x - 1
 			}
 		case 4:
-			if(pl.y < boardSize - 1) {
-				pl.y = pl.y + 1
+			if(pl[player].y < boardSize - 2) {
+				pl[player].y = pl[player].y + 1
 			}
 		default:
 			fmt.Print("move default\n")
 	}
+    go printGame()
 }
-*/
 
 func networkinit() {
 
@@ -220,7 +213,12 @@ func networkinit() {
                 aux := strings.Split(in.Message, " ")
                 x, _ := strconv.Atoi(aux[1])
                 y, _ := strconv.Atoi(aux[2])
-                bomb(pMonitor, x, y)
+                go bomb(x, y)
+            } else if strings.HasPrefix(in.Message, "move") {
+                aux := strings.Split(in.Message, " ")
+                player, _ := strconv.Atoi(aux[1])
+                direction, _ := strconv.Atoi(aux[2])
+                go move(player, direction)
             }
 			//fmt.Printf("Message from %v: %v\n", in.From, in.Message)
 		}
@@ -247,6 +245,8 @@ func printGame () {
                 fmt.Printf("# ")
             } else if bombs[j][i] {
                 fmt.Printf("@ ")
+            } else if fires[j][i] > 0 {
+                fmt.Printf("* ")
             } else if pl[0].x == i && pl[0].y == j {
                 fmt.Printf("1 ")
             } else if pl[1].x == i && pl[1].y == j {
@@ -262,14 +262,42 @@ func printGame () {
 
 func bomb(x int, y int) {
     bombs[x][y] = true
-    printGame()
+    go printGame()
     //fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
     time.Sleep(2000000000)
     //fmt.Print("Booom!\n")
     bombs[x][y] = false
-    printGame()
-}
 
+    fires[x][y]++
+
+    fires[x+1][y]++
+    fires[x-1][y]++
+    fires[x][y+1]++
+    fires[x][y-1]++
+
+    fires[x+2][y]++
+    fires[x-2][y]++
+    fires[x][y+2]++
+    fires[x][y-2]++
+
+    go printGame()
+
+    time.Sleep(500000000)
+
+    fires[x][y]--
+
+    fires[x+1][y]--
+    fires[x-1][y]--
+    fires[x][y+1]--
+    fires[x][y-1]--
+
+    fires[x+2][y]--
+    fires[x-2][y]--
+    fires[x][y+2]--
+    fires[x][y-2]--
+
+    go printGame()
+}
 
 type printMonitor struct {
 	// sincronizacao
@@ -290,15 +318,14 @@ const boardSize = 10
 
 var board [boardSize][boardSize]bool
 var bombs [boardSize][boardSize]bool
+var fires [boardSize][boardSize]int
 
 var pl [2]player = playerInit()
 
 func main() {
-    networkinit()
-    //mbc := printMonitorInit()
-    //go keyListener()
-    buildBoard()
-    printGame()
+    go networkinit()
+    go buildBoard()
+    go printGame()
     time.Sleep(2000000000)
     go bomb(3,4)
     go bomb(4,4)
