@@ -6,107 +6,10 @@ import (
     "time"
     "bufio"
     "os"
+    BEB "../BestEffortBroadcast"
+    "strings"
+    "strconv"
 )
-
-
-func buildBoard() {
-    for j := 0; j < boardSize; j++ {
-        for i := 0; i < boardSize; i++ {
-            if j == 0 || j == boardSize - 1 || i == 0 || i == boardSize - 1 {
-                board[j][i] = true
-            } else {
-                board[j][i] = false
-            }
-        }
-    }
-}
-
-func playerInit() [2]player {
-    p := [2]player{player{}, player{}}
-
-    p[0].x = 1
-    p[0].y = 1
-
-    p[1].x = boardSize - 2
-    p[1].y = boardSize - 2
-
-    return p
-}
-
-
-/*
-func move(player int, action int) {
-	switch action {
-		case 1:
-			if(pl.x < boardSize - 1) {
-				pl.x = pl.x + 1
-			}
-		case 2:
-			if(pl.y > 0) {
-				pl.y = pl.y - 1
-			}
-		case 3:
-			if(pl.x > 0) {
-				pl.x = pl.x - 1
-			}
-		case 4:
-			if(pl.y < boardSize - 1) {
-				pl.y = pl.y + 1
-			}
-		default:
-			fmt.Print("move default\n")
-	}
-}*/
-
-
-/*
-func networkinit() {
-
-	if len(os.Args) < 2 {
-		fmt.Println("Please specify at least one address:port!")
-		return
-	}
-
-	addresses := os.Args[1:]
-	fmt.Println(addresses)
-
-	beb := BEB.BestEffortBroadcast_Module{
-		Req: make(chan BEB.BestEffortBroadcast_Req_Message),
-		Ind: make(chan BEB.BestEffortBroadcast_Ind_Message)}
-
-	beb.Init(addresses[0])
-
-	// enviador de broadcasts
-	go func() {
-
-		scanner := bufio.NewScanner(os.Stdin)
-		var msg string
-
-		for {
-			if scanner.Scan() {
-				msg = scanner.Text()
-			}
-			req := BEB.BestEffortBroadcast_Req_Message{
-				Addresses: addresses[1:],
-				Message:   msg}
-			beb.Req <- req
-		}
-	}()
-
-	// receptor de broadcasts
-	go func() {
-		for {
-
-			in := <-beb.Ind
-			fmt.Printf("Message from %v: %v\n", in.From, in.Message)
-
-		}
-	}()
-
-	blq := make(chan int)
-	<-blq
-}
-*/
 
 
 // -----------------------------------------
@@ -226,10 +129,105 @@ func (c *Condition) condSignal() {
 // -----------------------------------------
 
 
-type printMonitor struct {
-	// sincronizacao
-	m     *Monitor
-	cond *Condition
+
+func buildBoard() {
+    for j := 0; j < boardSize; j++ {
+        for i := 0; i < boardSize; i++ {
+            if j == 0 || j == boardSize - 1 || i == 0 || i == boardSize - 1 {
+                board[j][i] = true
+            } else {
+                board[j][i] = false
+            }
+        }
+    }
+}
+
+func playerInit() [2]player {
+    p := [2]player{player{}, player{}}
+
+    p[0].x = 1
+    p[0].y = 1
+
+    p[1].x = boardSize - 2
+    p[1].y = boardSize - 2
+
+    return p
+}
+
+/*
+func move(player int, action int) {
+	switch action {
+		case 1:
+			if(pl.x < boardSize - 1) {
+				pl.x = pl.x + 1
+			}
+		case 2:
+			if(pl.y > 0) {
+				pl.y = pl.y - 1
+			}
+		case 3:
+			if(pl.x > 0) {
+				pl.x = pl.x - 1
+			}
+		case 4:
+			if(pl.y < boardSize - 1) {
+				pl.y = pl.y + 1
+			}
+		default:
+			fmt.Print("move default\n")
+	}
+}
+*/
+
+func networkinit() {
+
+	if len(os.Args) < 2 {
+		fmt.Println("Please specify at least one address:port!")
+		return
+	}
+
+	addresses := os.Args[1:]
+	fmt.Println(addresses)
+
+	beb := BEB.BestEffortBroadcast_Module{
+		Req: make(chan BEB.BestEffortBroadcast_Req_Message),
+		Ind: make(chan BEB.BestEffortBroadcast_Ind_Message)}
+
+	beb.Init(addresses[0])
+
+	// enviador de broadcasts
+	go func() {
+
+		scanner := bufio.NewScanner(os.Stdin)
+		var msg string
+
+		for {
+			if scanner.Scan() {
+				msg = scanner.Text()
+			}
+			req := BEB.BestEffortBroadcast_Req_Message{
+				Addresses: addresses[1:],
+				Message:   msg}
+			beb.Req <- req
+		}
+	}()
+
+	// receptor de broadcasts
+	go func() {
+		for {
+			in := <-beb.Ind
+            if strings.HasPrefix(in.Message, "bomb") {
+                aux := strings.Split(in.Message, " ")
+                x, _ := strconv.Atoi(aux[1])
+                y, _ := strconv.Atoi(aux[2])
+                bomb(pMonitor, x, y)
+            }
+			//fmt.Printf("Message from %v: %v\n", in.From, in.Message)
+		}
+	}()
+
+	blq := make(chan int)
+	<-blq
 }
 
 func printMonitorInit() *printMonitor {
@@ -241,24 +239,8 @@ func printMonitorInit() *printMonitor {
 	return mbc
 }
 
-
-var reader = bufio.NewReader(os.Stdin)
-
-const maxPlayers = 3
-const boardSize = 10
-
-var board [boardSize][boardSize]bool
-var bombs [boardSize][boardSize]bool
-
-var pl [2]player = playerInit()
-
-type player struct {
-    x, y int
-}
-
-
-func printGame (mbc *printMonitor) {
-    mbc.m.monitorEntry()
+func printGame () {
+    pMonitor.m.monitorEntry()
     for j := 0; j < boardSize; j++ {
         for i := 0; i < boardSize; i++ {
             if board[j][i] {
@@ -275,31 +257,51 @@ func printGame (mbc *printMonitor) {
         }
         fmt.Printf("\n")
     }
-    mbc.m.monitorExit()
+    pMonitor.m.monitorExit()
 }
 
-
-func bomb(mbc *printMonitor, x int, y int) {
+func bomb(x int, y int) {
     bombs[x][y] = true
-    printGame(mbc)
+    printGame()
     //fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
     time.Sleep(2000000000)
     //fmt.Print("Booom!\n")
     bombs[x][y] = false
-    printGame(mbc)
+    printGame()
 }
 
+
+type printMonitor struct {
+	// sincronizacao
+	m     *Monitor
+	cond *Condition
+}
+
+type player struct {
+    x, y int
+}
+
+var pMonitor = printMonitorInit()
+
+var reader = bufio.NewReader(os.Stdin)
+
+const maxPlayers = 3
+const boardSize = 10
+
+var board [boardSize][boardSize]bool
+var bombs [boardSize][boardSize]bool
+
+var pl [2]player = playerInit()
+
 func main() {
-
-
-    mbc := printMonitorInit()
-
+    networkinit()
+    //mbc := printMonitorInit()
     //go keyListener()
     buildBoard()
-    printGame(mbc)
+    printGame()
     time.Sleep(2000000000)
-    go bomb(mbc, 3,4)
-    go bomb(mbc, 4,4)
+    go bomb(3,4)
+    go bomb(4,4)
     var block chan int = make(chan int)
     <-block
 }
