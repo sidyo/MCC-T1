@@ -169,6 +169,7 @@ func move(player int, action int) {
 		default:
 			fmt.Print("move default\n")
 	}
+    go hitDetection()
     go printGame()
 }
 
@@ -280,6 +281,8 @@ func bomb(x int, y int) {
     fires[x][y+2]++
     fires[x][y-2]++
 
+    go hitDetection()
+
     go printGame()
 
     time.Sleep(500000000)
@@ -297,6 +300,22 @@ func bomb(x int, y int) {
     fires[x][y-2]--
 
     go printGame()
+}
+
+func hitDetection() {
+    pMonitor.m.monitorEntry()
+    x1 := pl[0].x
+    y1 := pl[0].y
+    if fires[y1][x1] > 0 {
+        fmt.Println("PLAYER 1 IS DEAD!")
+    }
+
+    x2 := pl[1].x
+    y2 := pl[1].y
+    if fires[y2][x2] > 0 {
+        fmt.Println("PLAYER 2 IS DEAD!")
+    }
+    pMonitor.m.monitorExit()
 }
 
 type printMonitor struct {
