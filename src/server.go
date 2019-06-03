@@ -214,7 +214,8 @@ func networkinit() {
                 aux := strings.Split(in.Message, " ")
                 x, _ := strconv.Atoi(aux[1])
                 y, _ := strconv.Atoi(aux[2])
-                go bomb(x, y)
+                size, _ := strconv.Atoi(aux[3])
+                go bomb(x, y, size)
             } else if strings.HasPrefix(in.Message, "move") {
                 aux := strings.Split(in.Message, " ")
                 player, _ := strconv.Atoi(aux[1])
@@ -261,7 +262,7 @@ func printGame () {
     pMonitor.m.monitorExit()
 }
 
-func bomb(x int, y int) {
+func bomb(x int, y int, size int) {
     bombs[x][y] = true
     go printGame()
     //fmt.Printf("Bomb planted at: %d, %d\n",pl.x,pl.y)
@@ -270,34 +271,25 @@ func bomb(x int, y int) {
     bombs[x][y] = false
 
     fires[x][y]++
-
-    fires[x+1][y]++
-    fires[x-1][y]++
-    fires[x][y+1]++
-    fires[x][y-1]++
-
-    fires[x+2][y]++
-    fires[x-2][y]++
-    fires[x][y+2]++
-    fires[x][y-2]++
+    for i := 1; i <= size; i++ {
+        if x - i > 0 { fires[x - i][y]++ }
+        if y - i > 0 { fires[x][y - i]++ }
+        if x + i < boardSize { fires[x + i][y]++ }
+        if y + i < boardSize { fires[x][y + i]++ }
+    }
 
     go hitDetection()
-
     go printGame()
 
     time.Sleep(500000000)
 
     fires[x][y]--
-
-    fires[x+1][y]--
-    fires[x-1][y]--
-    fires[x][y+1]--
-    fires[x][y-1]--
-
-    fires[x+2][y]--
-    fires[x-2][y]--
-    fires[x][y+2]--
-    fires[x][y-2]--
+    for i := 1; i <= size; i++ {
+        if x - i > 0 { fires[x - i][y]-- }
+        if y - i > 0 { fires[x][y - i]-- }
+        if x + i < boardSize { fires[x + i][y]-- }
+        if y + i < boardSize { fires[x][y + i]-- }
+    }
 
     go printGame()
 }
@@ -346,8 +338,8 @@ func main() {
     go buildBoard()
     go printGame()
     time.Sleep(2000000000)
-    go bomb(3,4)
-    go bomb(4,4)
+    go bomb(3,4,2)
+    go bomb(4,4,4)
     var block chan int = make(chan int)
     <-block
 }
