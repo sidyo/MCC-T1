@@ -5,14 +5,17 @@ import (
 	//"sync"
 	"time"
 	"bufio"
-    "os"
-	term "github.com/nsf/termbox-go"
+    	"os"
+	term "../termbox"
+	//runewidth "../runewidth"
+    	BEB "../BestEffortBroadcast"
+	//term "github.com/nsf/termbox-go"
 )
 
 var reader = bufio.NewReader(os.Stdin)
 
 const maxPlayers = 3
-const tabTamanho = 
+const tabTamanho = 10
 
 var tab = montarTabuleiro()
 var pl = playerInit()
