@@ -9,6 +9,7 @@
 package BestEffortBroadcast
 
 import "fmt"
+
 //import "os"
 //import "bufio"
 import PP2PLink "../PP2PLink"
@@ -61,16 +62,16 @@ func (module BestEffortBroadcast_Module) Broadcast(message BestEffortBroadcast_R
 		msg := BEB2PP2PLink(message)
 		msg.To = message.Addresses[i]
 		module.Pp2plink.Req <- msg
-		fmt.Println("Sent to " + message.Addresses[i])
+		//fmt.Println("Sent to " + message.Addresses[i])
 	}
 
 }
 
 func (module BestEffortBroadcast_Module) Deliver(message BestEffortBroadcast_Ind_Message) {
 
-	fmt.Println("Received '" + message.Message + "' from " + message.From)
+	//fmt.Println("Received '" + message.Message + "' from " + message.From)
 	module.Ind <- message
-	fmt.Println("# End BEB Received")
+	//fmt.Println("# End BEB Received")
 
 }
 
