@@ -22,6 +22,7 @@ const boardSize = 10
 const bombExplosionTime = 3 * time.Second
 const fireFadeTime = 500 * time.Millisecond
 
+var maxBombs = 2
 var mutex = MCCSemaforo.NewSemaphore(1)
 var networkReady = MCCSemaforo.NewSemaphore(0)
 var boardReady = MCCSemaforo.NewSemaphore(0)
@@ -85,7 +86,10 @@ keyPressListenerLoop:
 				chClient <- "move " + address + " right"
 			case term.KeySpace:
 				//fmt.Println("Space pressed")
-				chClient <- "bomb " + address
+				if maxBombs > 0 {
+					maxBombs--
+					chClient <- "bomb " + address
+				}
 			default:
 				// Ignore any other key press
 			}
@@ -264,6 +268,7 @@ func bombAux(x int, y int, size int) {
 		}
 	}
 	resetScreen()
+	maxBombs++
 }
 
 func hitDetection() {
